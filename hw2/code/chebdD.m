@@ -1,26 +1,23 @@
-function [X, W] = incdD(l)
-% incdD Return the points and weights of the increment delta_k.
+function [X, W] = chebdD(l)
+% chebdD Compute the points and weights corresponding to the product rule.
+%
+% Compute the points and weights using recursion.
+%
+% Author: Terrence Alsup
 
 % Get the dimension.
 d = length(l);
 
+% Recursive step.
 if d <= 1
-    if l == 1
-        [X, W] = cheb1D(l);
-    else
-        % Quadrature points will be the ones of the higher level.
-        [X, W] = cheb1D(l);
-        [~, W1] = cheb1D(l-1);
-        % Quadrature weights only need to be changed for the common points.
-        n = 2^l + 1;
-        W(1:2:n) = W(1:2:n) - W1;
-    end
+    % The base case.
+    [X, W] = cheb1D(l);
 else
     % Get the first dimension.
-    [x1, w1] = incdD(l(1));
+    [x1, w1] = cheb1D(l(1));
     
     % Get the remaining dimensions.
-    [Xd, Wd] = incdD(l(2:d));
+    [Xd, Wd] = chebdD(l(2:d));
     
     % Quadrature points are stored as column vectors.
     
@@ -37,6 +34,7 @@ else
         W((i-1)*ndm1+1:i*ndm1) = w1(i) * Wd;
     end
 end
+
 
 end
 

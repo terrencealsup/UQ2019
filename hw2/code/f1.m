@@ -1,5 +1,8 @@
 function y = f1(X)
-% Must have size(X,1) == d
+% f1 The integrand for the first integral.
+%
+% Author: Terrence Alsup
+
 
 d = size(X,1);
 

@@ -1,4 +1,7 @@
 function y = f2(X)
+% f1 The integrand for the first integral.
+%
+% Author: Terrence Alsup
 
 d = size(X,1);
 

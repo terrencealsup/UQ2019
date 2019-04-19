@@ -1,5 +1,7 @@
 function Qf = smolyakdD(level, d, f)
 % smolyakdD Computes the sparse grid points and quadrature weights.
+%
+% Author: Terrence Alsup
 
 Qf = 0;
 for k=d:level+d-1

@@ -4,6 +4,9 @@ function Z = coeffFun2DBlocks2(xi, X, Y)
 %   X, Y    ...     coordinates (with meshgrid)
 % Out
 %   coeff   ...     coefficient
+%
+% Author: Terrence Alsup
+
 
 % Set the upper half.
 Z = xi(1) * ones(size(X));

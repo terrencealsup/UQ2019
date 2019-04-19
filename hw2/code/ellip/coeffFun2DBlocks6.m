@@ -1,6 +1,6 @@
 function Z = coeffFun2DBlocks6(xi, X, Y)
 % In
-%   xi      ...     parameter size 5
+%   xi      ...     parameter size 6
 %   X, Y    ...     coordinates (with meshgrid)
 % Out
 %   coeff   ...     coefficient

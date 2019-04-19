@@ -1,5 +1,5 @@
 clear all; close all;
-addpath(genpath('code/ellip'));
+addpath(genpath('ellip'));
 
 
 % The dimension.

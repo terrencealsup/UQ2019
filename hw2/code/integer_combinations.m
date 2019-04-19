@@ -4,6 +4,9 @@ function V = integer_combinations(d, total)
 %
 % Done by recursion.
 % total >= d must be an integer.
+%
+% Author: Terrence Alsup
+
 
 
 if d == 1

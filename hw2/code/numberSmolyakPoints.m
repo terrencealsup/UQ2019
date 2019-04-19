@@ -1,5 +1,8 @@
 function N = numberSmolyakPoints(level, d)
 % Compute the number of quadrature points for Smolyak.
+%
+% Author: Terrence Alsup
+
 
 N = 0;
 for k=d:level+d-1

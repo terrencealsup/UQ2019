@@ -1,5 +1,7 @@
 function [x, w] = cheb1D(l)
 % cheb1D Clenshaw-Curtis points and weights for level l.
+%
+% Author: Terrence Alsup
 
 n = 2^l + 1; % Number of quadrature points.
 
