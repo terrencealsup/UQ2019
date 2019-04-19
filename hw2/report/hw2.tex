@@ -1,0 +1,138 @@
+\documentclass[12pt]{article}
+
+%% FONTS
+%% To get the default sans serif font in latex, uncomment following line:
+ \renewcommand*\familydefault{\sfdefault}
+%%
+%% to get Arial font as the sans serif font, uncomment following line:
+%% \renewcommand{\sfdefault}{phv} % phv is the Arial font
+%%
+%% to get Helvetica font as the sans serif font, uncomment following line:
+% \usepackage{helvet}
+\usepackage[small,bf,up]{caption}
+\renewcommand{\captionfont}{\footnotesize}
+\usepackage[left=1in,right=1in,top=1in,bottom=1in]{geometry}
+\usepackage{graphics,epsfig,graphicx,float,subfigure,color}
+\usepackage{amsmath,amssymb,amsbsy,amsfonts,amsthm}
+\usepackage{url}
+\usepackage{boxedminipage}
+\usepackage[sf,bf,tiny]{titlesec}
+ \usepackage[plainpages=false, colorlinks=true,
+   citecolor=blue, filecolor=blue, linkcolor=blue,
+   urlcolor=blue]{hyperref}
+\usepackage{enumitem}
+\usepackage{verbatim}
+\usepackage{tikz,pgfplots}
+\usepackage{bm}
+
+\newcommand{\todo}[1]{\textcolor{red}{#1}}
+% see documentation for titlesec package
+% \titleformat{\section}{\large \sffamily \bfseries}
+\titlelabel{\thetitle.\,\,\,}
+
+\newcommand{\bs}{\boldsymbol}
+\newcommand{\alert}[1]{\textcolor{red}{#1}}
+\setlength{\emergencystretch}{20pt}
+
+\begin{document}
+
+\begin{center}
+  \vspace*{-2cm}
+{\small MATH-GA 2012.004 and CSCI-GA 2945.004, Benjamin Peherstorfer}
+\end{center}
+\vspace*{.5cm}
+\begin{center}
+\large \textbf{%%
+Spring 2019: Advanced Topics in Numerical Analysis: \\
+Stochastic modeling and uncertainty quantification in complex systems \\
+Assignment 2 (due Apr.\ 22, 2019) }
+\end{center}
+
+\vspace*{0.4cm}
+\begin{center}
+\large \textbf{Terrence Alsup}
+\end{center}
+
+\vspace*{0.25cm}
+
+% The machine used.
+%\emph{Note: }
+
+\vspace*{0.25cm}
+
+% ****************************
+\begin{enumerate}
+% --------------------------
+
+\item {\large \textbf{Smolyak quadrature}}
+
+\hspace{0.5cm} We implement the Smolyak quadrature by creating a sequence of helper functions.  The first is {\tt cheb1D}, which takes in an integer and computes the Clenshaw-Curtis points and weights in 1-dimension.  We use an alternate formula for the points, which is actually the same one that the package Chebfun uses.
+\begin{equation}
+\label{eq:chebpts}
+x_{l,k} = \sin \left( \frac{\pi k }{2(n_l - 1)}  \right) \quad \text{ for } k = -(n-1), -(n-1)+2,\ldots, n-1
+\end{equation}
+This formula enforces a symmetry so that at the middle point we compute 0 exactly and obtain better accuracy.  Next in our implementation we have a function called {\tt chebdD}, which computes the tensor-product of the Clenshaw-Curtis points for multiple dimensions and calculates the weights by taking the product.  After this we have {\tt incdD} which computes the points and weights for the increments (again tensorized).  Both this function and {\tt chebdD} are recursive in the dimension when computing the tensor-product of the points.  Finally we implement {\tt smolyakdD}, which takes as inputs the level, the dimension, and a function handle.  We use a helper function called {\tt integer\_combinations} that computes all of the possible integer combinations of $d$ variables to achieve a total value.  This is done in a recursive fashion on the dimension again.  Finally, to compute the integral of the function with respect to the quadrature rule we sum over all of the results from the increments.\\
+
+
+\hspace{0.5cm} We now test our implementation of the Smolyak quadrature on computing the integral
+\begin{equation}
+\label{eq:integral1}
+\int_{[0,1]^d} \left( 1 + 1/d\right)^d \prod_{i=1}^d x_i^{(1/d)} d{\bm x} = 1
+\end{equation}
+by looking at the relative error as in Table~\ref{table:integral1}.  We see two things.  First is that as we increase the level the relative error of our approximation decreases, indicating that the implementation is working correctly.  The second is that as we increase the dimension the relative error decays much more slowly.  Indeed for $d=6$ we still have a fairly large relative error even at level 10.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{ | l || r | r | r | r | r | r |}
+\hline
+Level \textbackslash $d$ & 1 & 2 & 3 & 4 & 5 & 6 \\
+\hline
+4   & 0.006448 & 0.121020 & 0.357042 & 0.595544 & 0.771527 & 0.880616\\
+6   & 0.000402 & 0.022756 & 0.121988 & 0.297871 & 0.497392 & 0.672269\\
+8   & 0.000025 & 0.003796 & 0.033994 & 0.119038 & 0.259617 & 0.428249\\
+10 & 0.000002 & 0.000593 & 0.008376 & 0.040617 & 0.114351 & 0.231345\\
+\hline
+\end{tabular}
+\caption{The relative error of our Smolyak quadrature rule for the integral~\ref{eq:integral1}.}
+\label{table:integral1}
+\end{table}
+
+\hspace{0.5cm} We also test our implementation on computing the integral
+\begin{equation}
+\label{eq:integral2}
+\int_{[-1,1]^d} \prod_{i=1}^d \sin\left( \frac{(x_i + 1)\pi}{2}  \right) d{\bm x} = \left(\frac{4}{\pi}\right)^d
+\end{equation}
+and have recorded the relative error in Table~\ref{table:integral2} below.  We again see that increasing the level greatly improves the accuracy, but increasing the dimension results in slower convergence.  Additionally, we notice that these relative errors are much smaller and converge to zero much faster than when calculating \ref{eq:integral1}.  This agrees with the theory behind sparse grids because the function we are integrating in \ref{eq:integral2} is much smoother.  Thus, we would expect faster convergence.
+\begin{table}[H]
+\centering
+\begin{tabular}{ | l || r | r | r | r | r | r |}
+\hline
+Level \textbackslash $d$ & 1 & 2 & 3 & 4 & 5 & 6 \\
+\hline
+1 & 0.047198 & 0.096623 & 0.148381 & 0.202581 & 0.259340 & 0.318778\\
+2 & 0.000296 & 0.001607 & 0.005918 & 0.012860 & 0.022672 & 0.035609\\
+3 & 0.000000 & 0.000028 & 0.000018 & 0.000252 & 0.000807 & 0.001832\\
+4 & 0.000000 & 0.000000 & 0.000002 & 0.000003 & 0.000005 & 0.000037\\
+\hline
+\end{tabular}
+\caption{The relative error of our Smolyak quadrature rule for the integral~\ref{eq:integral1}.}
+\label{table:integral2}
+\end{table}
+
+
+\item {\large \textbf{Stochastic collocation}}
+
+\hspace{0.5cm}  We now test our implementation on the model problem with ${\bm \xi} = [\xi_1,\ldots, \xi_d]$ and $\xi_i \sim \text{Uniform}[1,10]$ are i.i.d.  We write $Q(u; {\bm \xi})$ to denote our quantity of interest which depends implicitly on ${\bm \xi}$, and we calculate the expectation by
+\begin{equation}
+\label{eq:expectation}
+\mathbb{E}_{\bm \xi}[Q(u)] = \frac{1}{9^d} \int_{[1,10]^d} Q(u; {\bm \xi})\ d{\bm \xi}.
+\end{equation}
+To fit with our implementation, which can only integrate over $[-1,1]^d$, we use the change of variables $x_i = \frac{2}{9}\xi_i - \frac{11}{9}$.  Now the integral becomes
+\begin{equation}
+\label{eq:change_of_variables}
+\mathbb{E}_{\bm \xi}[Q(u)] = \frac{1}{2^d} \int_{[-1,1]^d} Q(u; {\bm x})\ d{\bm x}.
+\end{equation}
+
+\end{enumerate}
+
+\end{document}
