@@ -132,6 +132,41 @@ To fit with our implementation, which can only integrate over $[-1,1]^d$, we use
 \label{eq:change_of_variables}
 \mathbb{E}_{\bm \xi}[Q(u)] = \frac{1}{2^d} \int_{[-1,1]^d} Q(u; {\bm x})\ d{\bm x}.
 \end{equation}
+We compare the Smolyak quadrature with the Monte Carlo estimator
+\begin{equation}
+\label{eq:montecarlo}
+\mathbb{E}_{\bm \xi}[Q(u)] \approx \frac{1}{N}\sum_{i=1}^N Q(u^{(i)}; {\bm \xi}^{(i)}), \quad \quad {\bm \xi}^{(i)} \text{ i.i.d. }
+\end{equation}
+
+
+\hspace{0.5cm} For $d=2$ we split the domain evenly into a top half $\{(x_1,x_2) : x_2 \in (0.5,\ 1]\} $ and a bottom half $\{(x_1,x_2) : x_2 \in [0,\ 0.5]\}$ in the function {\tt coeffFun2DBlocks2}.  Since we are in 2 dimensions, we can calculate a reference value $Q_{\text{ref}}$ using Matlab's built-in {\tt integral2} function.  Figure~\ref{fig:comparisond2} below shows the comparison between Smolyak quadrature with the Monte Carlo estimator \ref{eq:montecarlo}.  We see that Smolyak quadrature performs significantly better than Monte Carlo and has an extremely fast rate of decay for the error.  This is a result of our quantity of interest $Q(u, {\bm \xi})$ depending smoothly on the parameter ${\bm \xi}$.  Monte Carlo has no way to take advantage of this and is why we observe the usual rate of $1/2$.
+
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=5in]{smolyak_mc_error_d2.jpg}
+\caption{The rate of convergence for Smolyak quadrature and Monte Carlo for computing the integral \ref{eq:expectation} when $d=2$. Note that the solution $Q(u)$ itself is approximated with finite elements using level $\ell = 4$.  For Monte Carlo we estimate the root-mean-squared-error (RMSE) using 100 trials.}
+\label{fig:comparisond2}
+\end{figure}
+
+\hspace{0.5cm} Similarly, we can increase the dimension to $d=6$ by splitting the domain into 6 regions
+\begin{equation}
+\label{eq:domains}
+\Omega_i = \left\{(x_1,x_2)\ :\  \frac{1}{6}(i-1) \le x_2 < \frac{1}{6}i  \right\} \quad i=1,2,\ldots,6,
+\end{equation}
+which is done with the Matlab function {\tt coeffFun2DBlocks6}.  Since there is no built-in Matlab function to compute this 6-dimensional integral we calculate a reference value $Q_{\text{ref}}$ by using the Smolyak quadrature (now that it has been tested) with sparse grids of level 4 (note this is different from the level $\ell = 2$ used to solve the PDE).  Figure~\ref{fig:comparisond6} below shows the results for sparse grid levels $1,2,3$.  As expected Smolyak quadrature again performs better than Monte Carlo although this time the rate is slower.  This is a result of solving a higher-dimensional integral.  It is also potentially the result of less regularity of $Q(u; {\bm \xi})$.  We note that here we used the level $\ell = 2$ when solving for $Q(u)$ whereas before we had used $\ell = 4$.  This was an attempt to greatly reduce computational cost.
+
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=5in]{smolyak_mc_error_d6.jpg}
+\caption{The rate of convergence for Smolyak quadrature and Monte Carlo for computing the integral \ref{eq:expectation} when $d=6$. Note that the solution $Q(u)$ itself is approximated with finite elements using level $\ell = 2$.  For Monte Carlo we estimate the root-mean-squared-error (RMSE) using 100 trials.}
+\label{fig:comparisond6}
+\end{figure}
+
+
+\hspace{0.5cm}  We note that an attempt to go to higher dimensions, particularly $d=16$, fails even for the sparse grids.  The base level has $3$ quadrature points in each dimension.  For 16 dimensions this is $3^{16}$ total quadrature points, which is over 43 million.  This is way too expensive for either Smolyak or Monte Carlo given that each point requires one solve of our PDE, even with parallelization.  Note that for Monte Carlo we could choose to use fewer samples, but would then get a fairly large RMSE.
+
 
 \end{enumerate}
 
